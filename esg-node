@@ -1211,6 +1211,126 @@ setup_esgcet() {
     source deactivate
 }
 
+
+#####
+# CDF2CIM integration
+#####
+
+setup_cdf2cim() {    
+
+    # Sets up (or upgrades) python packages cdf2cim and its dependencies.
+    # cdf2cim is used by the publisher when --create-cim flag is specified
+
+    echo "Setting up python packages for CIM integration"
+
+    # set up netCDF python, pointing to location of hdf5 and netcdf C libs
+    HDF5_DIR=$cdat_home/Externals \
+	NETCDF4_DIR=$cdat_home/Externals \
+	setup_python_package netCDF4 ${netcdf4_python_dist_url} ${netcdf4_python_package_version}
+
+    setup_python_package cf ${cf_python_dist_url} ${cf_python_version}
+
+    setup_python_package cdf2cim ${cdf2cim_dist_url} ${cdf2cim_version}
+}
+
+setup_python_package() {
+    # generic setup of python package into CDAT's python from downloaded
+    # tar.gz file, using "python setup.py install"
+
+    local name=$1  # name of package (used for informational messages,
+                   # and for testing import)
+    local dist_url=$2  # URL of tarball
+
+    local package_version=$3  # version number in __version__ for testing whether 
+                              # package already installed
+
+    # check 2 or 3 args passed in
+    [ -z "$2" -o ! -z "$4" ] && echo "setup_python_package called wrongly" && checked_done 1
+
+    local python=${cdat_home}/bin/python
+
+    # if package_version argument passed in, then test if already imports and reports this version, 
+    # and if so, just return
+    if [ ! -z "$package_version" ] && check_python_package_version $python $name $package_version
+    then
+	echo "$name already installed into $python at version $required_version - skipping install"
+	return
+    fi
+
+    mkdir -p ${workdir}
+    [ $? != 0 ] && checked_done 1
+    pushd ${workdir} >& /dev/null
+
+    # prepend package name in local filename of tarball, to make
+    # workbench contents more obvious (as github omits the package
+    # name and just uses <version>.tar.gz)
+    local dist_file=${name}.${dist_url##*/}
+
+    # download tarball and unpack
+
+    if [ ! -s ${dist_file} ]; then
+	wget -O ${dist_file} ${dist_url}
+	if [ $? -ne 0 -o ! -s ${dist_file} ]
+	then
+	    echo $dist_url
+	    echo "Could not download $name"
+	    rm -f ${dist_file}
+	    popd
+	    checked_done 1
+	fi
+    fi
+    echo "unpacking ${dist_file}..."
+
+    dist_dir=`tar tfz ${dist_file} | head -n 1 | sed 's,/.*$,,' | uniq`
+    [ `echo $dist_dir | wc -w` -ne 1 ] && echo "ERROR: tarball must contain exactly 1 top level directory" && popd && checked_done 1
+
+    rm -rf ${dist_dir}
+    tar xfz ${dist_file}
+    [ $? != 0 ] && echo "ERROR: Could not extract $name" && popd && checked_done 1
+
+    cd ${dist_dir}
+
+    echo "installing ${name}..."
+    #env \
+	#CFLAGS="-I $cdat_home/Externals/include" \
+	#LDFLAGS="-L $cdat_home/Externals/lib" \
+    $python setup.py install 
+
+    [ $? != 0 ] && echo "ERROR: could not build $name" && popd && checked_done 1
+
+    popd
+
+    echo "testing import of ${name}..."
+    $python -c "import $name"
+    [ $? != 0 ] && echo "ERROR: could not import $name" && checked_done 1
+    echo "ok"
+
+    # if package_version argument passed in, then test if reports this version, 
+    # if not - bomb out
+    if [ ! -z "$package_version" ] && ! check_python_package_version $python $name $package_version
+    then
+	echo "ERROR: after installing $name, fails to report version $package_version"
+	checked_done 1
+    fi
+}
+
+check_python_package_version() {
+    # tests if a package imports cleanly and reports required version as __version__
+    # if so, returns 0 (success), otherwise returns 1
+
+    local python=$1
+    local name=$2
+    local required_version=$3
+    
+    local reported_version=`$python -c "import ${name} ; print ${name}.__version__" 2> /dev/null`
+    [ $? -ne 0 ] && return 1
+    [ "$required_version" = "$reported_version" ] && return 0
+    return 1    
+}
+
+#################
+
+
 write_esgcet_env() {
     echo "export ESG_ROOT_ID=$esg_root_id" >> ${envfile}
     dedup ${envfile} && source ${envfile}
@@ -6986,6 +7106,7 @@ main() {
         [ $((sel & TEST_BIT))    != 0 ] && test_cdat
         [ $((sel & INSTALL_BIT)) != 0 ] && [ $((sel & DATA_BIT+COMPUTE_BIT)) != 0 ] && setup_esgcet ${upgrade_mode}
         [ $((sel & TEST_BIT))    != 0 ] && [ $((sel & DATA_BIT+COMPUTE_BIT)) != 0 ] && test_esgcet
+        [ $((sel & INSTALL_BIT)) != 0 ] && [ $((sel & DATA_BIT+COMPUTE_BIT)) != 0 ] && setup_cdf2cim
         [ $((sel & INSTALL_BIT)) != 0 ] && setup_tomcat ${upgrade_mode}
         [ $((sel & INSTALL_BIT)) != 0 ] && setup_apache_frontend
         [ $((sel & TEST_BIT))    != 0 ] && test_tomcat

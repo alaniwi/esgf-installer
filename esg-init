@@ -77,6 +77,13 @@ init() {
     # Since ESGF 1.8, LAS version is declared in esg-product-server
     #las_version=${las_version:-"8.1"}; las_min_version=${las_min_version:-"8.1"}
 
+    cdf2cim_commit_id=a0f72d6f1d53403681caedc50f1f12016de38826  # in download URL
+    cdf2cim_version=0.1.8.1  # cdf2cim.__version__ (for testing correct version installed)
+
+    cf_python_version=1.5.3.post1
+    netcdf4_python_package_version=1.2.7  # netCDF4.__version__ (for testing correct version installed)
+    netcdf4_python_version=v${netcdf4_python_package_version}rel  # tag name in github
+
     python_version=${python_version:-"2.7"}
     #--------------------------------
     # Script vars (~external)
@@ -206,6 +213,11 @@ init() {
     thredds_root_dir=${esg_root_dir}/data
     thredds_replica_dir=${thredds_root_dir}/replica
     esgf_stats_api_dist_url=${esg_dist_url}/esgf-stats-api/esgf-stats-api.war 
+
+    cdf2cim_dist_url=https://github.com/ES-DOC/esdoc-cdf2cim/archive/${cdf2cim_commit_id}.tar.gz
+    cf_python_dist_url=https://bitbucket.org/cfpython/cf-python/get/vv${cf_python_version}.tar.gz
+    netcdf4_python_dist_url=https://github.com/Unidata/netcdf4-python/archive/v${netcdf4_python_version}.tar.gz
+
     #NOTE: This is another RedHat/CentOS specific portion!!! it will break on another OS!
     show_summary_latch=0
     source_latch=0
@@ -225,6 +237,7 @@ init() {
     default_dname="OU=ESGF.ORG, O=ESGF" #zoiks: allow this to be empty to allow prompting of user for fields!
     config_file=${esg_config_dir}/esgf.properties
     index_config="master slave"
+
 }
 
 init
