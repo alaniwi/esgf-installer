@@ -81,8 +81,10 @@ init() {
     cdf2cim_version=0.1.8.1  # cdf2cim.__version__ (for testing correct version installed)
 
     cf_python_version=1.5.3.post1
+    psutil_version=5.2.2
     netcdf4_python_package_version=1.2.7  # netCDF4.__version__ (for testing correct version installed)
     netcdf4_python_version=v${netcdf4_python_package_version}rel  # tag name in github
+    
 
     python_version=${python_version:-"2.7"}
     #--------------------------------
@@ -215,6 +217,7 @@ init() {
     esgf_stats_api_dist_url=${esg_dist_url}/esgf-stats-api/esgf-stats-api.war 
 
     cdf2cim_dist_url=https://github.com/ES-DOC/esdoc-cdf2cim/archive/${cdf2cim_commit_id}.tar.gz
+    psutil_dist_url=https://github.com/giampaolo/psutil/releases/release-${psutil_version}.tar.gz
     cf_python_dist_url=https://bitbucket.org/cfpython/cf-python/get/vv${cf_python_version}.tar.gz
     netcdf4_python_dist_url=https://github.com/Unidata/netcdf4-python/archive/${netcdf4_python_version}.tar.gz
 

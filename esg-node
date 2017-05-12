@@ -1228,6 +1228,8 @@ setup_cdf2cim() {
 	NETCDF4_DIR=$cdat_home/Externals \
 	setup_python_package netCDF4 ${netcdf4_python_dist_url} ${netcdf4_python_package_version}
 
+    setup_python_package psutil ${psutil_dist_url} ${psutil_version}
+
     setup_python_package cf ${cf_python_dist_url} ${cf_python_version}
 
     setup_python_package cdf2cim ${cdf2cim_dist_url} ${cdf2cim_version}
