@@ -217,7 +217,7 @@ init() {
     esgf_stats_api_dist_url=${esg_dist_url}/esgf-stats-api/esgf-stats-api.war 
 
     cdf2cim_dist_url=https://github.com/ES-DOC/esdoc-cdf2cim/archive/${cdf2cim_commit_id}.tar.gz
-    psutil_dist_url=https://github.com/giampaolo/psutil/releases/release-${psutil_version}.tar.gz
+    psutil_dist_url=https://github.com/giampaolo/psutil/archive/release-${psutil_version}.tar.gz
     cf_python_dist_url=https://bitbucket.org/cfpython/cf-python/get/vv${cf_python_version}.tar.gz
     netcdf4_python_dist_url=https://github.com/Unidata/netcdf4-python/archive/${netcdf4_python_version}.tar.gz
 
