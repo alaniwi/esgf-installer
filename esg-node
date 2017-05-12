@@ -1247,7 +1247,7 @@ setup_python_package() {
     # check 2 or 3 args passed in
     [ -z "$2" -o ! -z "$4" ] && echo "setup_python_package called wrongly" && checked_done 1
 
-    local python=${cdat_home}/bin/python
+    local python=${cdat_home}/envs/esgf-pub/bin/python
 
     # if package_version argument passed in, then test if already imports and reports this version, 
     # and if so, just return
@@ -1291,9 +1291,6 @@ setup_python_package() {
     cd ${dist_dir}
 
     echo "installing ${name}..."
-    #env \
-	#CFLAGS="-I $cdat_home/Externals/include" \
-	#LDFLAGS="-L $cdat_home/Externals/lib" \
     $python setup.py install 
 
     [ $? != 0 ] && echo "ERROR: could not build $name" && popd && checked_done 1
